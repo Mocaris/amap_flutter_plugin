@@ -1,7 +1,6 @@
 package com.mocaris.flutter.amap_plugin.amap_flutter_plugin
 
 import android.content.Context
-import android.util.Log
 
 import androidx.annotation.NonNull
 import com.amap.api.services.core.LatLonPoint
@@ -28,7 +27,6 @@ class AmapFlutterPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-        Log.d("-------------", call.arguments.toString())
         when (call.method) {
             "updatePrivacyAgree" -> {
 //                val agree = call.argument<Boolean>("agree")
@@ -142,7 +140,6 @@ class AmapFlutterPlugin : FlutterPlugin, MethodCallHandler {
                 val geocodeSearch = GeocodeSearch(context).apply {
                     this.setOnGeocodeSearchListener(object : GeocodeSearch.OnGeocodeSearchListener {
                         override fun onRegeocodeSearched(regResult: RegeocodeResult, code: Int) {
-                            Log.d("-----------", result.toString())
                             if (1000 == code) {
                                 val regeocodeAddress = regResult.regeocodeAddress
                                 result.success(regeoAddessResult2Map(regeocodeAddress))
