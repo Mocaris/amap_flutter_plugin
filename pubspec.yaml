@@ -1,6 +1,6 @@
 name: amap_flutter_plugin
-description: 高德搜索插件 目前只有 poi 地理编码 逆地理编码
-version: 0.0.1
+description: amap search plugin
+version: 0.0.2
 homepage:
 
 environment:
