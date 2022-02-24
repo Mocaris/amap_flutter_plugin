@@ -63,19 +63,20 @@ class AmapFlutterPlugin : FlutterPlugin, MethodCallHandler {
             //poi搜索
             "poiSearch" -> {
                 val keyWord = call.argument<String>("keyWord")
+                val type = call.argument<String>("type")
                 val city = call.argument<String>("city")
-                val cityLimit = call.argument<Boolean>("cityLimit")?:false
+                val cityLimit = call.argument<Boolean>("cityLimit") ?: false
                 val page = call.argument<Int>("page") ?: 1
                 val pageSize = call.argument<Int>("pageSize") ?: 10
                 val requireSubPOIs = call.argument<Boolean>("requireSubPOIs") ?: false
                 //keyWord表示搜索字符串，
                 //第二个参数表示POI搜索类型，二者选填其一，选用POI搜索类型时建议填写类型代码，码表可以参考下方（而非文字）
                 //cityCode表示POI搜索区域，可以是城市编码也可以是城市名称，也可以传空字符串，空字符串代表全国在全国范围内进行搜索
-                val poiSearch = PoiSearch(context, PoiSearch.Query(keyWord, "", city).apply {
+                val poiSearch = PoiSearch(context, PoiSearch.Query(keyWord, type ?: "", city ?: "").apply {
                     this.pageNum = page
                     this.pageSize = pageSize
                     this.requireSubPois(requireSubPOIs)
-                    this.cityLimit=cityLimit
+                    this.cityLimit = cityLimit
                 })
                 poiSearch.setOnPoiSearchListener(object : PoiSearch.OnPoiSearchListener {
                     override fun onPoiSearched(poiResult: PoiResult, code: Int) {

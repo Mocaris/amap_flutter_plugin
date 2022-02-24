@@ -43,15 +43,16 @@ public class SwiftAmapFlutterPlugin: NSObject, FlutterPlugin {
             let args = call.arguments as! [String: Any]
             let request = AMapPOIKeywordsSearchRequest()
             request.keywords = args["keyWord"] as? String
-            request.city = args["city"] as? String
+            request.city = args["city"] as? String ?? ""
+            request.types = args["type"] as? String ?? ""
             request.page = args["page"] as? Int ?? 1
             request.offset = args["pageSize"] as? Int ?? 10
             request.cityLimit = args["cityLimit"] as? Bool ?? false
             request.requireSubPOIs = (args["requireSubPOIs"] as? Bool) ?? false
-            let search = AMapSearchAPI()!
-            search.aMapPOIKeywordsSearch(request)
+            let search = AMapSearchAPI()
+            search!.aMapPOIKeywordsSearch(request)
             let callback = SearchCallback(result: result, poiIdSearch: false)
-            search.delegate = callback
+            search!.delegate = callback
         // 地理编码（地址转坐标）
         case "geocodeSearch":
             let args = call.arguments as! [String: Any]

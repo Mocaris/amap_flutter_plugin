@@ -40,9 +40,14 @@ class AmapFlutterPlugin {
 
   //poi搜索
   static Future<PoiSearchResult?> poiSearch(
-      {required String keyWord, String? cityName, required int page, required int pageSize, bool requireSubPOIs = false}) async {
-    var res = await _channel.invokeMapMethod<String, dynamic>(
-        "poiSearch", {"keyWord": keyWord, "city": cityName, "page": page, "pageSize": pageSize, "requireSubPOIs": requireSubPOIs});
+      {required String keyWord,
+      String? cityCode,
+      String? type,
+      required int page,
+      required int pageSize,
+      bool requireSubPOIs = false}) async {
+    var res = await _channel.invokeMapMethod<String, dynamic>("poiSearch",
+        {"keyWord": keyWord, "city": cityCode, "type": type, "page": page, "pageSize": pageSize, "requireSubPOIs": requireSubPOIs});
     return null != res ? PoiSearchResult.fromJson(res) : null;
   }
 
