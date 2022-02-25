@@ -30,13 +30,13 @@ class AmapFlutterPlugin : FlutterPlugin, MethodCallHandler {
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
         when (call.method) {
             "updatePrivacyAgree" -> {
-                val agree = call.argument<Boolean>("agree") ?: false
+                val agree = call.argument<Boolean>("agree") ?: true
                 ServiceSettings.updatePrivacyAgree(context, agree);
                 result.success(null)
             }
             "updatePrivacyShow" -> {
-                val show = call.argument<Boolean>("show") ?: false
-                val containPrivacy = call.argument<Boolean>("containPrivacy") ?: false
+                val show = call.argument<Boolean>("show") ?: true
+                val containPrivacy = call.argument<Boolean>("containPrivacy") ?: true
                 ServiceSettings.updatePrivacyShow(context, show, containPrivacy)
                 result.success(null)
             }
