@@ -11,10 +11,10 @@ export 'package:amap_flutter_plugin/model/poiItem.dart';
 export 'package:amap_flutter_plugin/model/geo_address.dart';
 export 'package:amap_flutter_plugin/model/poi_search_result.dart';
 
-const MethodChannel _channel = MethodChannel('mocaris_amap_flutter_plugin');
-
 class AmapFlutterPlugin {
   AmapFlutterPlugin._();
+
+ static const MethodChannel _channel = MethodChannel('mocaris_amap_flutter_plugin');
 
   static Future setApiKey({required String iosKey}) async {
     await _channel.invokeMethod("setApiKey", {"iosKey": iosKey});
@@ -33,13 +33,13 @@ class AmapFlutterPlugin {
   }
 
   //poiId搜索
-  static Future<PoiItem?> poiSearchId({required String poiId}) async {
+   Future<PoiItem?> poiSearchId({required String poiId}) async {
     var res = await _channel.invokeMapMethod<String, dynamic>("poiSearchId", {"poiId": poiId});
     return null != res ? PoiItem.fromJson(res) : null;
   }
 
   //poi搜索
-  static Future<PoiSearchResult?> poiSearch(
+   Future<PoiSearchResult?> poiSearch(
       {required String keyWord,
       String? cityCode,
       String? type,
@@ -52,13 +52,13 @@ class AmapFlutterPlugin {
   }
 
   //地理编码（地址转坐标）
-  static Future<List<GeoAddress>> geocodeSearch({required String address, String? cityCode, String? country}) async {
+   Future<List<GeoAddress>> geocodeSearch({required String address, String? cityCode, String? country}) async {
     var res = await _channel.invokeListMethod("geocodeSearch", {"address": address, "cityCode": cityCode, "country": country});
     return null != res ? res.map((e) => GeoAddress.fromJson(e)).toList() : <GeoAddress>[];
   }
 
   //逆地理编码（坐标转地址）
-  static Future<ReGeoSearchResult?> regeoSearch({required base.LatLng latLon, int distance = 50}) async {
+   Future<ReGeoSearchResult?> regeoSearch({required base.LatLng latLon, int distance = 50}) async {
     var res = await _channel.invokeMapMethod("regeoSearch", {
       "address": <double>[latLon.latitude, latLon.longitude],
       "distance": distance
