@@ -12,7 +12,6 @@ export 'package:amap_flutter_plugin/model/geo_address.dart';
 export 'package:amap_flutter_plugin/model/poi_search_result.dart';
 
 class AmapFlutterPlugin {
-  AmapFlutterPlugin._();
 
  static const MethodChannel _channel = MethodChannel('mocaris_amap_flutter_plugin');
 
