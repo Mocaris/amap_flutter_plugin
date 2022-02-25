@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.annotation.NonNull
 import com.amap.api.services.core.LatLonPoint
 import com.amap.api.services.core.PoiItem
+import com.amap.api.services.core.ServiceSettings
 import com.amap.api.services.geocoder.*
 import com.amap.api.services.poisearch.PoiResult
 import com.amap.api.services.poisearch.PoiSearch
@@ -29,17 +30,19 @@ class AmapFlutterPlugin : FlutterPlugin, MethodCallHandler {
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
         when (call.method) {
             "updatePrivacyAgree" -> {
-//                val agree = call.argument<Boolean>("agree")
+                val agree = call.argument<Boolean>("agree") ?: false
+                ServiceSettings.updatePrivacyAgree(context, agree);
                 result.success(null)
             }
             "updatePrivacyShow" -> {
-//                val show = call.argument<Boolean>("show")
-//                val containPrivacy = call.argument<Boolean>("containPrivacy")
+                val show = call.argument<Boolean>("show") ?: false
+                val containPrivacy = call.argument<Boolean>("containPrivacy") ?: false
+                ServiceSettings.updatePrivacyShow(context, show, containPrivacy)
                 result.success(null)
             }
             "setApiKey" -> {
-
-//                val apiKey=call.argument<String>("apiKey")
+                val apiKey = call.argument<String>("androidKey")
+                ServiceSettings.getInstance().setApiKey(apiKey)
                 result.success(null)
             }
             //poiId搜索

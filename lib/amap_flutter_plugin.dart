@@ -15,8 +15,8 @@ class AmapFlutterPlugin {
 
  static const MethodChannel _channel = MethodChannel('mocaris_amap_flutter_plugin');
 
-  static Future setApiKey({required String iosKey}) async {
-    await _channel.invokeMethod("setApiKey", {"iosKey": iosKey});
+  static Future setApiKey({required String iosKey,required String androidKey}) async {
+    await _channel.invokeMethod("setApiKey", {"iosKey": iosKey,"androidKey": androidKey});
   }
 
   /// require for ios
