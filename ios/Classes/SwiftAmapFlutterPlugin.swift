@@ -5,7 +5,7 @@ import UIKit
 
 public class SwiftAmapFlutterPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: "amap_flutter_plugin", binaryMessenger: registrar.messenger())
+        let channel = FlutterMethodChannel(name: "mocaris_amap_flutter_plugin", binaryMessenger: registrar.messenger())
         let instance = SwiftAmapFlutterPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
