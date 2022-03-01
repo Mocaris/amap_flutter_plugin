@@ -55,19 +55,19 @@ class AmapFlutterPlugin : FlutterPlugin, MethodCallHandler {
                     override fun onPoiItemSearched(poiItem: PoiItem, code: Int) {
                         if (code == 1000) {
                             val poiItem2Map = poiItem2Map(poiItem)
-                            result.success(poiItem2Map)
-                        } else {
-                            result.error("$code", "", "")
+                            channel.invokeMethod("poiSearchId", poiItem2Map)
                         }
                     }
                 })
                 poiSearch.searchPOIIdAsyn(poiId)
+                result.success(null)
             }
             //poi搜索
             "poiSearch" -> {
                 val keyWord = call.argument<String>("keyWord")
                 val type = call.argument<String>("type")
                 val city = call.argument<String>("city")
+                val location = call.argument<List<Double>>("location")
                 val cityLimit = call.argument<Boolean>("cityLimit") ?: false
                 val page = call.argument<Int>("page") ?: 1
                 val pageSize = call.argument<Int>("pageSize") ?: 10
@@ -78,8 +78,12 @@ class AmapFlutterPlugin : FlutterPlugin, MethodCallHandler {
                 val poiSearch = PoiSearch(context, PoiSearch.Query(keyWord, type ?: "", city ?: "").apply {
                     this.pageNum = page
                     this.pageSize = pageSize
+                    if (null != location) {
+                        this.location = LatLonPoint(location[0], location[1])
+                    }
                     this.requireSubPois(requireSubPOIs)
                     this.cityLimit = cityLimit
+
                 })
                 poiSearch.setOnPoiSearchListener(object : PoiSearch.OnPoiSearchListener {
                     override fun onPoiSearched(poiResult: PoiResult, code: Int) {
@@ -96,9 +100,7 @@ class AmapFlutterPlugin : FlutterPlugin, MethodCallHandler {
                                     }
                                 }
                             }
-                            result.success(map)
-                        } else {
-                            result.error("$code", "", "")
+                            channel.invokeMethod("poiSearch", map)
                         }
                     }
 
@@ -106,6 +108,7 @@ class AmapFlutterPlugin : FlutterPlugin, MethodCallHandler {
 
                 })
                 poiSearch.searchPOIAsyn()
+                result.success(null)
             }
             //地理编码（地址转坐标）
             "geocodeSearch" -> {
@@ -119,10 +122,7 @@ class AmapFlutterPlugin : FlutterPlugin, MethodCallHandler {
 
                         override fun onGeocodeSearched(geoResult: GeocodeResult, code: Int) {
                             if (1000 == code) {
-                                val geocodeAddressList = geoResult.geocodeAddressList
-                                result.success(geocodeAddressList.map { address -> geoAddress2Map(address) })
-                            } else {
-                                result.error("$code", "", "")
+                                channel.invokeMethod("geocodeSearch", geoResult.geocodeAddressList.map { address -> geoAddress2Map(address) })
                             }
                         }
                     })
@@ -134,6 +134,7 @@ class AmapFlutterPlugin : FlutterPlugin, MethodCallHandler {
                     }
                 }
                 geocodeSearch.getFromLocationNameAsyn(request)
+                result.success(null)
             }
             //逆地理编码（坐标转地址）
             "regeoSearch" -> {
@@ -145,10 +146,7 @@ class AmapFlutterPlugin : FlutterPlugin, MethodCallHandler {
                     this.setOnGeocodeSearchListener(object : GeocodeSearch.OnGeocodeSearchListener {
                         override fun onRegeocodeSearched(regResult: RegeocodeResult, code: Int) {
                             if (1000 == code) {
-                                val regeocodeAddress = regResult.regeocodeAddress
-                                result.success(regeoAddessResult2Map(regeocodeAddress))
-                            } else {
-                                result.error("$code", "", "")
+                                channel.invokeMethod("regeoSearch", regeoAddessResult2Map(regResult.regeocodeAddress))
                             }
                         }
 
@@ -157,6 +155,7 @@ class AmapFlutterPlugin : FlutterPlugin, MethodCallHandler {
                     })
                 }
                 geocodeSearch.getFromLocationAsyn(regeocodeQuery)
+                result.success(null)
             }
             else -> result.notImplemented()
         }

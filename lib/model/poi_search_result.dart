@@ -36,17 +36,20 @@ class PoiSearchResult {
 class SuggestCity {
   SuggestCity({
     required this.adCode,
+    required this.cityName,
     required this.cityCode,
     required this.suggestionNum,
   });
 
   factory SuggestCity.fromJson(Map jsonRes) => SuggestCity(
         adCode: jsonRes['adCode'],
+        cityName: jsonRes['cityName'],
         cityCode: jsonRes['cityCode'],
         suggestionNum: jsonRes['suggestionNum'],
       );
 
   String? adCode;
+  String? cityName;
   String? cityCode;
   int? suggestionNum;
 

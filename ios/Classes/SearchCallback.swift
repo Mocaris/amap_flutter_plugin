@@ -8,69 +8,64 @@ import AMapFoundationKit
 import AMapSearchKit
 import Flutter
 
-class SearchCallback: NSObject, AMapSearchDelegate {
-   
-    let flutterResult: FlutterResult
+class SearchCallback {
     
-    //标识是否是poiId搜索
-    let poiIdSearch:Bool
-     init(result: @escaping FlutterResult,poiIdSearch:Bool=false){
-          self.flutterResult=result
-          self.poiIdSearch=poiIdSearch
-      }
+    private let flutterChannel : FlutterMethodChannel
+    
+     init(channel : FlutterMethodChannel) {
+         self.flutterChannel = channel
+    }
+   
+    public func aMapSearchRequest(request: Any!, didFailWithError error: Error!) {
+        print("aMapSearchRequest-------------\(error.localizedDescription)")
+    }
 
     //poi搜索
-    func onPOISearchDone(_ request: AMapPOISearchBaseRequest!, response: AMapPOISearchResponse!) {
-        if  response.count != 0{
-           let pois = response.pois!
-            if(poiIdSearch){
-                let poiMap = poiItem2Map(poiItem: pois.first!)
-                flutterResult(poiMap)
-            } else {
-                let suggestion = response.suggestion
-                let poiInfo = [
-                    "pois":pois.map{(item:AMapPOI) -> [String:Any?] in
-                        poiItem2Map(poiItem: item)
-                    },
-                    "searchSuggestionKeywords":suggestion?.keywords ,
-                    "searchSuggestionCitys": suggestion?.cities?.map{(c : AMapCity) -> [String:Any?] in
-                        [
-                         "cityName":c.city,
-                         "citycode": c.citycode,
-                         "cityName": c.adcode,
-                         "suggestionNum": c.num
-                        ] as [String : Any?]
-                    },
-                ] as [String : Any?]
-            flutterResult(poiInfo)
+    public func onPOISearchDone(request:  AMapPOISearchBaseRequest,
+                                response: AMapPOISearchResponse) {
+        if(request is AMapPOIIDSearchRequest){
+            if response.count != 0 {
+                let poiMap = poiItem2Map(poiItem: response.pois.first!)
+                flutterChannel.invokeMethod("poiSearchId", arguments:poiMap)
             }
         }else{
-            flutterResult(FlutterError(code: "0", message: "", details: nil))
+              let suggestion = response.suggestion
+              let poiInfo = [
+                "pois":response.pois.map{(item:AMapPOI) -> [String:Any?] in
+                      poiItem2Map(poiItem: item)
+                  },
+                  "searchSuggestionKeywords":suggestion?.keywords ,
+                  "searchSuggestionCitys": suggestion?.cities?.map{(c : AMapCity) -> [String:Any?] in
+                      [
+                       "cityName":c.city,
+                       "cityCode": c.citycode,
+                       "adcode": c.adcode,
+                       "suggestionNum": c.num
+                      ] as [String : Any?]
+                  },
+              ] as [String : Any?]
+            flutterChannel.invokeMethod("poiSearch", arguments:poiInfo)
         }
     }
     
     
     //地理编码（地址转坐标）
-    func onGeocodeSearchDone(_ request: AMapGeocodeSearchRequest!, response: AMapGeocodeSearchResponse!) {
+    public func onGeocodeSearchDone(request: AMapGeocodeSearchRequest!, response: AMapGeocodeSearchResponse!) {
         let codes =  response.geocodes
         if codes != nil{
             let list = codes!.map { (code : AMapGeocode) -> [String : Any?] in
                return geoAddress2Map(geoCode: code)
             }
-            flutterResult(list)
-        }else{
-            flutterResult(FlutterError(code: "0", message: "", details: nil))
+            flutterChannel.invokeMethod("geocodeSearch", arguments: list)
         }
     }
     
     //逆地理编码（坐标转地址）
-    func onReGeocodeSearchDone(_ request: AMapReGeocodeSearchRequest!, response: AMapReGeocodeSearchResponse!) {
+    public func onReGeocodeSearchDone(request: AMapReGeocodeSearchRequest!, response: AMapReGeocodeSearchResponse!) {
         let regeoCode =  response.regeocode
         if regeoCode != nil{
          let map = regeoAddessResult2Map(regeoCode: regeoCode!)
-            flutterResult(map)
-        }else{
-            flutterResult(FlutterError(code: "0", message: "", details: nil))
+            flutterChannel.invokeMethod("regeoSearch", arguments: map)
         }
     }
 
@@ -159,7 +154,7 @@ class SearchCallback: NSObject, AMapSearchDelegate {
         },
         "poiExtension": [
             "opentime":extensionInfo?.openTime,
-            "rating":extensionInfo?.rating
+            "rating":extensionInfo?.rating == nil ? "" : "\(String(describing: extensionInfo?.rating))"
         ] as [String : Any?],
         "poiId":poiItem.uid,
         "postcode":poiItem.postcode,
