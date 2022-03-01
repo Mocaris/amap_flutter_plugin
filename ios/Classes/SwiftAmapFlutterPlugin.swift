@@ -9,41 +9,42 @@ public class SwiftAmapFlutterPlugin: NSObject, FlutterPlugin, AMapSearchDelegate
         let instance = SwiftAmapFlutterPlugin(channel: channel)
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
+
     public func onPOISearchDone(_ request: AMapPOISearchBaseRequest!, response: AMapPOISearchResponse!) {
-      callback.onPOISearchDone(request: request!, response: response!)
+        callback.onPOISearchDone(request: request!, response: response!)
     }
     
     public func aMapSearchRequest(_ request: Any!, didFailWithError error: Error!) {
-        callback.aMapSearchRequest(request:request, didFailWithError: error)
+        callback.aMapSearchRequest(request: request, didFailWithError: error)
     }
  
     public func onGeocodeSearchDone(_ request: AMapGeocodeSearchRequest!, response: AMapGeocodeSearchResponse!) {
         callback.onGeocodeSearchDone(request: request, response: response)
     }
+
     public func onReGeocodeSearchDone(_ request: AMapReGeocodeSearchRequest!, response: AMapReGeocodeSearchResponse!) {
         callback.onReGeocodeSearchDone(request: request, response: response)
     }
-    
-    init(channel : FlutterMethodChannel) {
-        self.flutterChannel=channel
+ 
+    init(channel: FlutterMethodChannel) {
+        self.flutterChannel = channel
         callback = SearchCallback(channel: self.flutterChannel)
+        super.init()
     }
     
-    
-    private let flutterChannel : FlutterMethodChannel
+    private let flutterChannel: FlutterMethodChannel
 
-    private let  callback : SearchCallback
+    private let callback: SearchCallback
     
-    private var searchApi : AMapSearchAPI?
+    private var searchApi: AMapSearchAPI? = nil
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-
         switch call.method {
         case "updatePrivacyAgree":
             let args = call.arguments as! [String: Any]
             let agree = args["agree"] as! Bool
             AMapSearchAPI.updatePrivacyAgree(agree ? AMapPrivacyAgreeStatus.didAgree : AMapPrivacyAgreeStatus.notAgree)
-            result(nil)
+            result(true)
             
         case "updatePrivacyShow":
             let args = call.arguments as! [String: Any]
@@ -51,27 +52,27 @@ public class SwiftAmapFlutterPlugin: NSObject, FlutterPlugin, AMapSearchDelegate
             let agree = args["containPrivacy"] as! Bool
             AMapSearchAPI.updatePrivacyShow(show ? AMapPrivacyShowStatus.didShow : AMapPrivacyShowStatus.notShow,
                                             privacyInfo: agree ? AMapPrivacyInfoStatus.didContain : AMapPrivacyInfoStatus.notContain)
-            result(nil)
+            result(true)
             
         case "setApiKey":
             let args = call.arguments as! [String: Any]
             let apiKey = args["iosKey"] as! String
             AMapServices.shared().apiKey = apiKey
             if searchApi == nil {
-                searchApi = AMapSearchAPI()!
-                searchApi!.delegate = self
+                searchApi = AMapSearchAPI.init()
+                searchApi?.delegate = self
             }
-            result(nil)
+            result(true)
 //            poiId搜索
         case "poiSearchId":
-            let args = call.arguments as! [String:Any]
+            let args = call.arguments as! [String: Any]
             let poiId = args["poiId"] as! String
             let request = AMapPOIIDSearchRequest()
             request.requireSubPOIs = false
             request.uid = poiId
             request.requireExtension = true
             searchApi?.aMapPOIIDSearch(request)
-            result(nil)
+            result(true)
             
         // poi搜索
         case "poiSearch":
@@ -79,13 +80,13 @@ public class SwiftAmapFlutterPlugin: NSObject, FlutterPlugin, AMapSearchDelegate
             let request = AMapPOIKeywordsSearchRequest()
             request.keywords = args["keyWord"] as? String
             request.city = args["city"] as? String ?? ""
-           let type = args["type"] as? String
+            let type = args["type"] as? String
             if type != nil {
                 request.types = type
             }
             let location = args["location"] as? [Double]
             if location != nil {
-                request.location =  AMapGeoPoint.location(withLatitude: CGFloat(location![0]), longitude: CGFloat(location![1]))
+                request.location = AMapGeoPoint.location(withLatitude: CGFloat(location![0]), longitude: CGFloat(location![1]))
             }
             request.page = args["page"] as? Int ?? 1
             request.offset = args["pageSize"] as? Int ?? 10
@@ -93,7 +94,7 @@ public class SwiftAmapFlutterPlugin: NSObject, FlutterPlugin, AMapSearchDelegate
             request.requireSubPOIs = (args["requireSubPOIs"] as? Bool) ?? false
             request.requireExtension = true
             searchApi?.aMapPOIKeywordsSearch(request)
-            result(nil)
+            result(true)
         // 地理编码（地址转坐标）
         case "geocodeSearch":
             let args = call.arguments as! [String: Any]
@@ -109,7 +110,7 @@ public class SwiftAmapFlutterPlugin: NSObject, FlutterPlugin, AMapSearchDelegate
             }
             request.address = address
             searchApi?.aMapGeocodeSearch(request)
-            result(nil)
+            result(true)
         // 逆地理编码（坐标转地址）
         case "regeoSearch":
             let args = call.arguments as! [String: Any]
@@ -123,12 +124,10 @@ public class SwiftAmapFlutterPlugin: NSObject, FlutterPlugin, AMapSearchDelegate
             request.location = point
             request.radius = distance
             searchApi?.aMapReGoecodeSearch(request)
-            result(nil)
+            result(true)
             
         default:
             result(FlutterMethodNotImplemented)
-            break
         }
     }
-    
 }
