@@ -21,7 +21,6 @@ StreamController<dynamic> _callEventHandlerController = StreamController.broadca
 
 Future<void> _callHandler(MethodCall call) async {
   var arg = call.arguments;
-  print("----------------${call.method}\n---------${arg.runtimeType}\n$arg");
   switch (call.method) {
     case "poiSearchId":
       if (arg is Map) {
