@@ -36,7 +36,15 @@ public class SwiftAmapFlutterPlugin: NSObject, FlutterPlugin, AMapSearchDelegate
 
     private let callback: SearchCallback
     
-    private var searchApi: AMapSearchAPI? = nil
+    private var _api:AMapSearchAPI?
+    
+    private func searchApi() -> AMapSearchAPI {
+        if _api == nil {
+            _api = AMapSearchAPI.init()
+            _api!.delegate = self
+        }
+       return _api!
+    }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
@@ -58,10 +66,6 @@ public class SwiftAmapFlutterPlugin: NSObject, FlutterPlugin, AMapSearchDelegate
             let args = call.arguments as! [String: Any]
             let apiKey = args["iosKey"] as! String
             AMapServices.shared().apiKey = apiKey
-            if searchApi == nil {
-                searchApi = AMapSearchAPI.init()
-                searchApi?.delegate = self
-            }
             result(true)
 //            poiId搜索
         case "poiSearchId":
@@ -71,7 +75,7 @@ public class SwiftAmapFlutterPlugin: NSObject, FlutterPlugin, AMapSearchDelegate
             request.requireSubPOIs = false
             request.uid = poiId
             request.requireExtension = true
-            searchApi?.aMapPOIIDSearch(request)
+            searchApi().aMapPOIIDSearch(request)
             result(true)
             
         // poi搜索
@@ -93,7 +97,7 @@ public class SwiftAmapFlutterPlugin: NSObject, FlutterPlugin, AMapSearchDelegate
             request.cityLimit = args["cityLimit"] as? Bool ?? false
             request.requireSubPOIs = (args["requireSubPOIs"] as? Bool) ?? false
             request.requireExtension = true
-            searchApi?.aMapPOIKeywordsSearch(request)
+            searchApi().aMapPOIKeywordsSearch(request)
             result(true)
         // 地理编码（地址转坐标）
         case "geocodeSearch":
@@ -109,7 +113,7 @@ public class SwiftAmapFlutterPlugin: NSObject, FlutterPlugin, AMapSearchDelegate
                 request.city = city
             }
             request.address = address
-            searchApi?.aMapGeocodeSearch(request)
+            searchApi().aMapGeocodeSearch(request)
             result(true)
         // 逆地理编码（坐标转地址）
         case "regeoSearch":
@@ -123,7 +127,7 @@ public class SwiftAmapFlutterPlugin: NSObject, FlutterPlugin, AMapSearchDelegate
             point.longitude = latLon[1]
             request.location = point
             request.radius = distance
-            searchApi?.aMapReGoecodeSearch(request)
+            searchApi().aMapReGoecodeSearch(request)
             result(true)
             
         default:
